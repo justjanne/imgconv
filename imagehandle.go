@@ -1,44 +1,13 @@
-package lib
+package imgconv
 
 import (
-	"encoding/base64"
 	"gopkg.in/gographics/imagick.v2/imagick"
 	"math"
 	"strings"
 )
 
-const (
-	ImageFitCover   = "cover"
-	ImageFitContain = "contain"
-)
-
-var ProfileACESLinear, _ = base64.StdEncoding.DecodeString("AAAEMGxjbXMEMAAAbW50clJHQiBYWVogB+AABQABAA0AGQABYWNzcCpuaXgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPbWAAEAAAAA0y1sY21zAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMZGVzYwAAARQAAABGY3BydAAAAVwAAAE2d3RwdAAAApQAAAAUY2hhZAAAAqgAAAAsclhZWgAAAtQAAAAUYlhZWgAAAugAAAAUZ1hZWgAAAvwAAAAUclRSQwAAAxAAAAAQZ1RSQwAAAxAAAAAQYlRSQwAAAxAAAAAQY2hybQAAAyAAAAAkZG1uZAAAA0QAAADqbWx1YwAAAAAAAAABAAAADGVuVVMAAAAqAAAAHABBAEMARQBTAC0AZQBsAGwAZQAtAFYANAAtAGcAMQAwAC4AaQBjAGMAAAAAbWx1YwAAAAAAAAABAAAADGVuVVMAAAEaAAAAHABDAG8AcAB5AHIAaQBnAGgAdAAgADIAMAAxADYALAAgAEUAbABsAGUAIABTAHQAbwBuAGUAIAAoAGgAdAB0AHAAOgAvAC8AbgBpAG4AZQBkAGUAZwByAGUAZQBzAGIAZQBsAG8AdwAuAGMAbwBtAC8AKQAsACAAQwBDAC0AQgBZAC0AUwBBACAAMwAuADAAIABVAG4AcABvAHIAdABlAGQAIAAoAGgAdAB0AHAAcwA6AC8ALwBjAHIAZQBhAHQAaQB2AGUAYwBvAG0AbQBvAG4AcwAuAG8AcgBnAC8AbABpAGMAZQBuAHMAZQBzAC8AYgB5AC0AcwBhAC8AMwAuADAALwBsAGUAZwBhAGwAYwBvAGQAZQApAC4AAAAAWFlaIAAAAAAAAPbWAAEAAAAA0y1zZjMyAAAAAAABCL8AAARO///2aAAABYkAAP4D///8vv///jkAAALmAADQIlhZWiAAAAAAAAD9qwAAXKX///9OWFlaIAAAAAD///YJ///qZAAA0cJYWVogAAAAAAAAAyIAALj3AAACHXBhcmEAAAAAAAAAAAABAABjaHJtAAAAAAADAAAAALwWAABD6wAAAAAAAQAAAAAAB///7EltbHVjAAAAAAAAAAEAAAAMZW5VUwAAAM4AAAAcAEEAQwBFAFMAIABjAGgAcgBvAG0AYQB0AGkAYwBpAHQAaQBlAHMAIABmAHIAbwBtACAAVABCAC0AMgAwADEANAAtADAAMAA0ACwAIABoAHQAdABwADoALwAvAHcAdwB3AC4AbwBzAGMAYQByAHMALgBvAHIAZwAvAHMAYwBpAGUAbgBjAGUALQB0AGUAYwBoAG4AbwBsAG8AZwB5AC8AYQBjAGUAcwAvAGEAYwBlAHMALQBkAG8AYwB1AG0AZQBuAHQAYQB0AGkAbwBuAAAAAA==")
-var ProfileSRGB, _ = base64.StdEncoding.DecodeString("AAAE6GxjbXMEMAAAbW50clJHQiBYWVogB+AABQABAA0AGQABYWNzcCpuaXgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPbWAAEAAAAA0y1sY21zAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMZGVzYwAAARQAAABOY3BydAAAAWQAAAE2d3RwdAAAApwAAAAUY2hhZAAAArAAAAAsclhZWgAAAtwAAAAUYlhZWgAAAvAAAAAUZ1hZWgAAAwQAAAAUclRSQwAAAxgAAAAgZ1RSQwAAAxgAAAAgYlRSQwAAAxgAAAAgY2hybQAAAzgAAAAkZG1uZAAAA1wAAAGMbWx1YwAAAAAAAAABAAAADGVuVVMAAAAyAAAAHABzAFIARwBCAC0AZQBsAGwAZQAtAFYANAAtAHMAcgBnAGIAdAByAGMALgBpAGMAYwAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAARoAAAAcAEMAbwBwAHkAcgBpAGcAaAB0ACAAMgAwADEANgAsACAARQBsAGwAZQAgAFMAdABvAG4AZQAgACgAaAB0AHQAcAA6AC8ALwBuAGkAbgBlAGQAZQBnAHIAZQBlAHMAYgBlAGwAbwB3AC4AYwBvAG0ALwApACwAIABDAEMALQBCAFkALQBTAEEAIAAzAC4AMAAgAFUAbgBwAG8AcgB0AGUAZAAgACgAaAB0AHQAcABzADoALwAvAGMAcgBlAGEAdABpAHYAZQBjAG8AbQBtAG8AbgBzAC4AbwByAGcALwBsAGkAYwBlAG4AcwBlAHMALwBiAHkALQBzAGEALwAzAC4AMAAvAGwAZQBnAGEAbABjAG8AZABlACkALgAAAABYWVogAAAAAAAA9tYAAQAAAADTLXNmMzIAAAAAAAEMQgAABd7///MlAAAHkwAA/ZD///uh///9ogAAA9wAAMBuWFlaIAAAAAAAAG+gAAA49QAAA5BYWVogAAAAAAAAJJ8AAA+EAAC2xFhZWiAAAAAAAABilwAAt4cAABjZcGFyYQAAAAAAAwAAAAJmZgAA8qcAAA1ZAAAT0AAACltjaHJtAAAAAAADAAAAAKPXAABUfAAATM0AAJmaAAAmZwAAD1xtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAXAAAAAcAHMAUgBHAEIAIABjAGgAcgBvAG0AYQB0AGkAYwBpAHQAaQBlAHMAIABmAHIAbwBtACAAQQAgAFMAdABhAG4AZABhAHIAZAAgAEQAZQBmAGEAdQBsAHQAIABDAG8AbABvAHIAIABTAHAAYQBjAGUAIABmAG8AcgAgAHQAaABlACAASQBuAHQAZQByAG4AZQB0ACAALQAgAHMAUgBHAEIALAAgAGgAdAB0AHAAOgAvAC8AdwB3AHcALgB3ADMALgBvAHIAZwAvAEcAcgBhAHAAaABpAGMAcwAvAEMAbwBsAG8AcgAvAHMAUgBHAEIAOwAgAGEAbABzAG8AIABzAGUAZQAgAGgAdAB0AHAAOgAvAC8AdwB3AHcALgBjAG8AbABvAHIALgBvAHIAZwAvAHMAcABlAGMAaQBmAGkAYwBhAHQAaQBvAG4ALwBJAEMAQwAxAHYANAAzAF8AMgAwADEAMAAtADEAMgAuAHAAZABmAAA=")
-
-type Size struct {
-	Width  uint   `json:"width"`
-	Height uint   `json:"height"`
-	Format string `json:"format"`
-}
-
-type Quality struct {
-	CompressionQuality uint      `json:"compression_quality"`
-	SamplingFactors    []float64 `json:"sampling_factors"`
-}
-
-type ColorProfile struct {
-	data   []byte
-	format string
-}
-
-type ImageMeta struct {
-	wand     *imagick.MagickWand
-	depth    uint
-	profiles []ColorProfile
-}
-
-func NewImage(wand *imagick.MagickWand) (ImageMeta, error) {
-	meta := ImageMeta{
+func NewImage(wand *imagick.MagickWand) (ImageHandle, error) {
+	meta := ImageHandle{
 		wand: wand,
 	}
 
@@ -67,15 +36,15 @@ func NewImage(wand *imagick.MagickWand) (ImageMeta, error) {
 	return meta, nil
 }
 
-func (image *ImageMeta) CloneImage() ImageMeta {
-	return ImageMeta{
+func (image *ImageHandle) CloneImage() ImageHandle {
+	return ImageHandle{
 		image.wand.Clone(),
 		image.depth,
 		image.profiles,
 	}
 }
 
-func (image *ImageMeta) SanitizeMetadata() error {
+func (image *ImageHandle) SanitizeMetadata() error {
 	var profiles []ColorProfile
 	for _, profile := range image.profiles {
 		if !strings.EqualFold("exif", profile.format) {
@@ -100,7 +69,7 @@ func (image *ImageMeta) SanitizeMetadata() error {
 	return nil
 }
 
-func (image *ImageMeta) Crop(size Size) error {
+func (image *ImageHandle) Crop(size Size) error {
 	if size.Width == 0 || size.Height == 0 || size.Format != ImageFitCover {
 		return nil
 	}
@@ -173,7 +142,7 @@ func determineDesiredSize(width uint, height uint, size Size) (uint, uint) {
 	return desiredWidth, desiredHeight
 }
 
-func (image *ImageMeta) Resize(size Size) error {
+func (image *ImageHandle) Resize(size Size) error {
 	if size.Width == 0 && size.Height == 0 {
 		return nil
 	}
@@ -192,7 +161,7 @@ func (image *ImageMeta) Resize(size Size) error {
 	return nil
 }
 
-func (image *ImageMeta) Write(quality Quality, target string) error {
+func (image *ImageHandle) Write(quality Quality, target string) error {
 	for _, profile := range image.profiles {
 		if err := image.wand.ProfileImage(profile.format, profile.data); err != nil {
 			return err
