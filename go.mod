@@ -1,4 +1,4 @@
-module git.kuschku.de/justjanne/imgconv
+module github.com/justjanne/imgconv
 
 go 1.13
 
