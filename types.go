@@ -10,14 +10,14 @@ const (
 )
 
 type Size struct {
-	Width  uint   `json:"width"`
-	Height uint   `json:"height"`
-	Format string `json:"format"`
+	Width  uint   `json:"width" yaml:"width"`
+	Height uint   `json:"height" yaml:"height"`
+	Format string `json:"format" yaml:"format"`
 }
 
 type Quality struct {
-	CompressionQuality uint      `json:"compression_quality"`
-	SamplingFactors    []float64 `json:"sampling_factors"`
+	CompressionQuality uint      `json:"compression_quality" yaml:"compression-quality"`
+	SamplingFactors    []float64 `json:"sampling_factors" yaml:"sampling-factors"`
 }
 
 type ColorProfile struct {
