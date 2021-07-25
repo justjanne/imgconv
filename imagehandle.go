@@ -3,6 +3,7 @@ package imgconv
 import (
 	"gopkg.in/gographics/imagick.v2/imagick"
 	"math"
+	"os"
 	"strings"
 )
 
@@ -161,7 +162,7 @@ func (image *ImageHandle) Resize(size Size) error {
 	return nil
 }
 
-func (image *ImageHandle) Write(quality Quality, target string) error {
+func (image *ImageHandle) Write(quality Quality, target *os.File) error {
 	for _, profile := range image.profiles {
 		if err := image.wand.ProfileImage(profile.format, profile.data); err != nil {
 			return err
@@ -183,7 +184,7 @@ func (image *ImageHandle) Write(quality Quality, target string) error {
 		}
 	}
 
-	if err := image.wand.WriteImage(target); err != nil {
+	if err := image.wand.WriteImageFile(target); err != nil {
 		return err
 	}
 
