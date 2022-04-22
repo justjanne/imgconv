@@ -162,7 +162,7 @@ func (image *ImageHandle) Resize(size Size) error {
 	return nil
 }
 
-func (image *ImageHandle) Write(quality Quality, target *os.File) error {
+func (image *ImageHandle) prepareWrite(quality Quality) error {
 	for _, profile := range image.profiles {
 		if err := image.wand.ProfileImage(profile.format, profile.data); err != nil {
 			return err
@@ -184,9 +184,25 @@ func (image *ImageHandle) Write(quality Quality, target *os.File) error {
 		}
 	}
 
+	return nil
+}
+
+func (image *ImageHandle) Write(quality Quality, target string) error {
+	if err := image.prepareWrite(quality); err != nil {
+		return err
+	}
+	if err := image.wand.WriteImage(target); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (image *ImageHandle) WriteImageFile(quality Quality, target *os.File) error {
+	if err := image.prepareWrite(quality); err != nil {
+		return err
+	}
 	if err := image.wand.WriteImageFile(target); err != nil {
 		return err
 	}
-
 	return nil
 }
