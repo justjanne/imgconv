@@ -9,7 +9,8 @@ import (
 
 func NewImage(wand *imagick.MagickWand) (ImageHandle, error) {
 	meta := ImageHandle{
-		wand: wand,
+		wand:  wand,
+		depth: wand.GetImageDepth(),
 	}
 
 	if err := wand.AutoOrientImage(); err != nil {
@@ -28,8 +29,10 @@ func NewImage(wand *imagick.MagickWand) (ImageHandle, error) {
 			format: name,
 		})
 	}
-	if err := wand.SetImageDepth(16); err != nil {
-		return meta, err
+	if meta.depth < 16 {
+		if err := wand.SetImageDepth(16); err != nil {
+			return meta, err
+		}
 	}
 	if err := wand.ProfileImage("icc", ProfileACESLinear); err != nil {
 		return meta, err
