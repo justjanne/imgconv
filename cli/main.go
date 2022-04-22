@@ -3,7 +3,7 @@ package main
 import (
 	"flag"
 	"github.com/justjanne/imgconv"
-	"gopkg.in/gographics/imagick.v2/imagick"
+	"gopkg.in/gographics/imagick.v3/imagick"
 	"os"
 )
 

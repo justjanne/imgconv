@@ -1,7 +1,7 @@
 package imgconv
 
 import (
-	"gopkg.in/gographics/imagick.v2/imagick"
+	"gopkg.in/gographics/imagick.v3/imagick"
 	"math"
 	"os"
 	"strings"
@@ -154,7 +154,7 @@ func (image *ImageHandle) Resize(size Size) error {
 	desiredWidth, desiredHeight := determineDesiredSize(currentWidth, currentHeight, size)
 
 	if desiredWidth != currentWidth || desiredHeight != currentHeight {
-		if err := image.wand.ResizeImage(desiredWidth, desiredHeight, imagick.FILTER_LANCZOS, 1); err != nil {
+		if err := image.wand.ResizeImage(desiredWidth, desiredHeight, imagick.FILTER_LANCZOS); err != nil {
 			return err
 		}
 	}
