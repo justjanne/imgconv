@@ -48,6 +48,10 @@ func (image *ImageHandle) CloneImage() ImageHandle {
 	}
 }
 
+func (image *ImageHandle) ParseMetadata() Metadata {
+	return parseMetadata(image.wand)
+}
+
 func (image *ImageHandle) SanitizeMetadata() error {
 	var profiles []ColorProfile
 	for _, profile := range image.profiles {
